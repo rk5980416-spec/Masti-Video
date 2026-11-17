@@ -1,0 +1,6 @@
+{
+  "name": "Masti Video",
+  "description": "Masti Video — Your Videos, Your World! Watch, create, and share short videos with friends & community. Download the official Android APK.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
