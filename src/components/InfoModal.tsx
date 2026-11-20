@@ -147,7 +147,7 @@ export const InfoModal: React.FC<InfoModalProps> = ({
             </p>
             <p>
               For data access or account deletion requests, email{' '}
-              <span className="text-pink-400">support@mastivideo.in</span>.
+              <span className="text-pink-400">mastivideoindiak@gmail.com</span>.
             </p>
           </div>
         )}

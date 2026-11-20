@@ -7,9 +7,15 @@ interface HeaderProps {
   t: TranslationDict;
   language: LanguageCode;
   onLanguageChange: (lang: LanguageCode) => void;
+  onNavigateSection?: (hash: string) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({t, language, onLanguageChange}) => {
+export const Header: React.FC<HeaderProps> = ({
+  t,
+  language,
+  onLanguageChange,
+  onNavigateSection,
+}) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
 
@@ -23,8 +29,12 @@ export const Header: React.FC<HeaderProps> = ({t, language, onLanguageChange}) =
 
   const currentLang = LANGUAGE_OPTIONS.find((l) => l.code === language) ?? LANGUAGE_OPTIONS[0];
 
-  const handleNavClick = () => {
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
     setMobileMenuOpen(false);
+    if (onNavigateSection) {
+      e.preventDefault();
+      onNavigateSection(hash);
+    }
   };
 
   return (
@@ -32,7 +42,8 @@ export const Header: React.FC<HeaderProps> = ({t, language, onLanguageChange}) =
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         {/* Left: Flame Play Logo + Masti Video */}
         <a
-          href="#home"
+          href="/#home"
+          onClick={(e) => handleNavClick(e, '#home')}
           className="flex items-center gap-2.5 whitespace-nowrap shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
         >
           <FlamePlayLogo size={40} withGlow />
@@ -47,7 +58,8 @@ export const Header: React.FC<HeaderProps> = ({t, language, onLanguageChange}) =
             item.isHome ? (
               <a
                 key={item.href}
-                href={item.href}
+                href={`/${item.href}`}
+                onClick={(e) => handleNavClick(e, item.href)}
                 className="rounded-full bg-gradient-to-r from-[#FF1E7A] via-[#EC1B79] to-[#D9167A] px-5 py-1.5 text-sm font-semibold text-white shadow-[0_0_20px_rgba(255,30,122,0.75)] transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 whitespace-nowrap shrink-0"
               >
                 {item.label}
@@ -55,7 +67,8 @@ export const Header: React.FC<HeaderProps> = ({t, language, onLanguageChange}) =
             ) : (
               <a
                 key={item.href}
-                href={item.href}
+                href={`/${item.href}`}
+                onClick={(e) => handleNavClick(e, item.href)}
                 className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-neutral-100 transition-colors duration-200 hover:text-[#FF1E7A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 whitespace-nowrap shrink-0"
               >
                 {item.label}
@@ -154,8 +167,8 @@ export const Header: React.FC<HeaderProps> = ({t, language, onLanguageChange}) =
             {navItems.map((item) => (
               <a
                 key={item.href}
-                href={item.href}
-                onClick={handleNavClick}
+                href={`/${item.href}`}
+                onClick={(e) => handleNavClick(e, item.href)}
                 className={`flex min-h-[44px] items-center rounded-xl px-4 text-sm font-semibold transition-colors ${
                   item.isHome
                     ? 'bg-gradient-to-r from-[#FF1E7A] to-[#EC4899] text-white shadow-[0_0_16px_rgba(255,30,122,0.55)]'

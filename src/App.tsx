@@ -5,21 +5,70 @@ import {Footer} from './components/Footer';
 import {Header} from './components/Header';
 import {HeroSection} from './components/HeroSection';
 import {InfoModal, ModalType} from './components/InfoModal';
+import {PrivacyPolicyPage} from './components/PrivacyPolicyPage';
 import {StatsAndFeatures} from './components/StatsAndFeatures';
 import {WhyChooseSection} from './components/WhyChooseSection';
 import {useApkDownload} from './hooks/useApkDownload';
 import {useApkInfo} from './hooks/useApkInfo';
 import {LanguageCode, TRANSLATIONS} from './i18n/translations';
 
+function isPrivacyPath(pathname: string): boolean {
+  const clean = pathname.replace(/\/+$/, '').toLowerCase();
+  return clean === '/privacy-policy' || clean === '/privacy';
+}
+
 export default function App() {
   const [language, setLanguage] = useState<LanguageCode>('en');
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [toastVisible, setToastVisible] = useState(false);
+  const [showPrivacyPage, setShowPrivacyPage] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? isPrivacyPath(window.location.pathname) : false
+  );
 
   const {apkInfo, refreshApkInfo} = useApkInfo();
   const {downloadState, startDownload, resetDownloadState} = useApkDownload(apkInfo);
 
   const t = TRANSLATIONS[language];
+
+  useEffect(() => {
+    const onPopState = () => {
+      setShowPrivacyPage(isPrivacyPath(window.location.pathname));
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  const navigateToPrivacy = () => {
+    if (!isPrivacyPath(window.location.pathname)) {
+      window.history.pushState({}, '', '/privacy-policy');
+    }
+    setShowPrivacyPage(true);
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  };
+
+  const navigateToSection = (hash: string) => {
+    const targetHash = hash.startsWith('#') ? hash : `#${hash}`;
+    if (showPrivacyPage) {
+      window.history.pushState({}, '', `/${targetHash}`);
+      setShowPrivacyPage(false);
+      window.setTimeout(() => {
+        const el = document.querySelector(targetHash);
+        if (el) {
+          el.scrollIntoView({behavior: 'smooth'});
+        } else {
+          window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+      }, 60);
+      return;
+    }
+
+    const el = document.querySelector(targetHash);
+    if (el) {
+      el.scrollIntoView({behavior: 'smooth'});
+    } else {
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+  };
 
   const handleDownloadClick = () => {
     void startDownload();
@@ -75,36 +124,48 @@ export default function App() {
 
       {/* Main Content */}
       <div className="relative z-10 flex min-h-screen flex-col">
-        <Header t={t} language={language} onLanguageChange={setLanguage} />
+        <Header
+          t={t}
+          language={language}
+          onLanguageChange={setLanguage}
+          onNavigateSection={navigateToSection}
+        />
 
         <main className="flex-1">
-          <HeroSection
-            t={t}
-            apkInfo={apkInfo}
-            onRefreshApkInfo={() => {
-              void refreshApkInfo();
-            }}
-            onDownloadClick={handleDownloadClick}
-            isDownloading={downloadState.status === 'downloading'}
-            progress={downloadState.progress}
-          />
+          {showPrivacyPage ? (
+            <PrivacyPolicyPage onBackHome={() => navigateToSection('#home')} />
+          ) : (
+            <>
+              <HeroSection
+                t={t}
+                apkInfo={apkInfo}
+                onRefreshApkInfo={() => {
+                  void refreshApkInfo();
+                }}
+                onDownloadClick={handleDownloadClick}
+                isDownloading={downloadState.status === 'downloading'}
+                progress={downloadState.progress}
+              />
 
-          <StatsAndFeatures t={t} onJoinClick={handleDownloadClick} />
+              <StatsAndFeatures t={t} onJoinClick={handleDownloadClick} />
 
-          <WhyChooseSection
-            t={t}
-            onDownloadClick={handleDownloadClick}
-            isDownloading={downloadState.status === 'downloading'}
-            progress={downloadState.progress}
-          />
+              <WhyChooseSection
+                t={t}
+                onDownloadClick={handleDownloadClick}
+                isDownloading={downloadState.status === 'downloading'}
+                progress={downloadState.progress}
+              />
 
-          <AboutAndContact t={t} />
+              <AboutAndContact t={t} />
+            </>
+          )}
         </main>
 
         <Footer
           t={t}
-          onOpenPrivacy={() => setActiveModal('privacy')}
+          onOpenPrivacy={navigateToPrivacy}
           onOpenTerms={() => setActiveModal('terms')}
+          onNavigateSection={navigateToSection}
         />
       </div>
 

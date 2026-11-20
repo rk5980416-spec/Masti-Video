@@ -7,16 +7,30 @@ interface FooterProps {
   t: TranslationDict;
   onOpenPrivacy: () => void;
   onOpenTerms: () => void;
+  onNavigateSection?: (hash: string) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({t, onOpenPrivacy, onOpenTerms}) => {
+export const Footer: React.FC<FooterProps> = ({
+  t,
+  onOpenPrivacy,
+  onOpenTerms,
+  onNavigateSection,
+}) => {
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
+    if (onNavigateSection) {
+      e.preventDefault();
+      onNavigateSection(hash);
+    }
+  };
+
   return (
     <footer className="border-t border-white/10 bg-black py-6">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-between gap-5 md:flex-row">
           {/* Left: Masti Video Logo */}
           <a
-            href="#home"
+            href="/#home"
+            onClick={(e) => handleAnchorClick(e, '#home')}
             className="flex items-center gap-2.5 whitespace-nowrap shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
           >
             <FlamePlayLogo size={34} withGlow />
@@ -30,17 +44,24 @@ export const Footer: React.FC<FooterProps> = ({t, onOpenPrivacy, onOpenTerms}) =
             aria-label="Footer navigation"
             className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-neutral-200 sm:text-sm"
           >
-            <a href="#about" className="hover:text-[#FF1E7A] transition-colors">
+            <a
+              href="/#about"
+              onClick={(e) => handleAnchorClick(e, '#about')}
+              className="hover:text-[#FF1E7A] transition-colors"
+            >
               {t.footer.about}
             </a>
             <span aria-hidden="true" className="text-white/25">|</span>
-            <button
-              type="button"
-              onClick={onOpenPrivacy}
+            <a
+              href="/privacy-policy"
+              onClick={(e) => {
+                e.preventDefault();
+                onOpenPrivacy();
+              }}
               className="hover:text-[#FF1E7A] transition-colors cursor-pointer"
             >
               {t.footer.privacy}
-            </button>
+            </a>
             <span aria-hidden="true" className="text-white/25">|</span>
             <button
               type="button"
@@ -50,7 +71,11 @@ export const Footer: React.FC<FooterProps> = ({t, onOpenPrivacy, onOpenTerms}) =
               {t.footer.terms}
             </button>
             <span aria-hidden="true" className="text-white/25">|</span>
-            <a href="#contact" className="hover:text-[#FF1E7A] transition-colors">
+            <a
+              href="/#contact"
+              onClick={(e) => handleAnchorClick(e, '#contact')}
+              className="hover:text-[#FF1E7A] transition-colors"
+            >
               {t.footer.contact}
             </a>
           </nav>

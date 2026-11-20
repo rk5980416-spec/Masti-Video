@@ -31,5 +31,5 @@ export const SOCIAL_LINKS = {
   facebook: 'https://facebook.com',
   instagram: 'https://instagram.com',
   telegram: 'https://t.me',
-  supportEmail: 'support@mastivideo.in',
+  supportEmail: 'mastivideoindiak@gmail.com',
 } as const;
